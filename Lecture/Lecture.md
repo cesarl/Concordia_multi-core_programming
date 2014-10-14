@@ -91,3 +91,90 @@ Multi-core processor :
 ...
 
 Coarse grained computation means that each cores should do heavy computation, not simple operation. Coarse grained computation permit to reduce context switch.
+
+----------------------------------------------------------------------------
+
+-------------------------------------------
+
+# Week 3
+
+## Lecture
+
+About the assignement :
+- Observations we make with this assignement will be usefull for the nexts assignements
+- The purpose is to realize difficulties you encounter coding with threads (and not Cuda / OpenCL / Intel TBB)
+
+Once we design a MT program we have to see if we can improve the performance.
+Improve performance in MC environement is a tricky issue. Some sort of things can work other not.
+
+Factors which affect performances :
+- Coverage
+	- When you decide to parlise and what part of the code ? Is it possible to improve the performance with MT design ? How much parallelism you will implement ? Choose the right extend of parallism.
+- Granularity
+	- Once you choose your coverage ? How can I split my algorythm / architecture in multiple threads ?
+- Locality
+	- You choose the approriate algo and granularity, you now have to choose right locality. You compute on multiple cores but at the end you have to put the ressources at the same place. Their'll be some communication between threads (messages, or shared data).
+	- You have to balance computation and communication properly ?
+	- You have to worry how the threads are actually executed. You cannot control where the threads run.
+
+### Coverage
+
+Example of raytracing : it does not require synchronisation between threads. We can call that type of architecture : embarrassingly parallel.
+
+But in real life all the computationnal problems are not so easy that raytracing. They're not all embarrassingly parallel. There is some sequential part.
+The ratio between sequential part and parallel part is the amount of parallelism you can add to your program.
+Sequential code will always limit the performance improvements. If sequential code take 50 % of the time, even with 100 thread you'll not be able to multiply the performance by two.
+
+### Granularity
+
+Granularity is the ration to computation to communication. If communication is small, the ratio will be high, so threads can do a lot of computation.
+Synchronisation is necessary for data cohesion but bad for performances.
+
+- Fine-grain paralleism :
+	- Small computation, lots of communication
+	- Lots of memory access needed
+	- GPUs are good at that
+- Coarse grain computation :
+	- Large computation, small communication
+	- Can execute lots of computation before needed memory access
+	- The problem is that usualy making sure every core is used equaly is very difficult. We can be sure of that only if we are sure that every core are doing the same computation
+	- CPUs are good at that
+
+- Load balancy :
+	- It's trying to avoid that some threads finish before others. In that case threads have to wait others have finished.
+
+- Static load balancing :
+	- The programmer decide at the moment of coding what each thread has to do.
+	- Static load balancing work well when all the core are similar (so only for homogenous processor, like CPUs for example).
+
+- Dynamic load balancing :
+	- Thread choose at runtime what work he will do.
+
+Ganularity and performance tradeoffs:
+- Load Balancing :
+	-  How well is work distributed among cores ?
+-  Synchronization
+-  Communication
+
+### Overlapping messages (communication) and computation
+
+A pipeline. When you perform computation on a piece of data you access the next piece of data for futur computation. But you have to be sure that the time to get from memory should be about the same as to precess data -> but in that case, your program is not portable.
+
+There is no way to get all the data into the core. Cores will have to get data into chunk.
+
+### Locality of memory accesses
+
+(see slide 43)
+If all the access 0, 4, 8, 12 come from the same memory banks, only one thread will be able to write.
+
+###
+
+In shared memory archi there is different ... :
+- UMA
+	- Every processor can access the memory at the same time
+	- So it doesnt matter wigh processor access the memory
+	- We can name it SMP
+- NUMA
+	- We have to know which processor is accessing which data
+
+
